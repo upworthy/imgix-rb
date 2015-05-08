@@ -50,6 +50,14 @@ path.defaults.width(300).to_url # Resets parameters
 path.rect(x: 0, y: 50, width: 200, height: 300).to_url # Rect helper
 ```
 
+It's also possible to create schema-relative URLs for mixed-protocol sites. Note that passing `:secure => true` will override `relative`.
+
+```ruby
+relative = Imgix::Client.new(host: 'your-subdomain.imgix.net', relative: true)
+
+relative.sign_path('/images/demo.png?w=200')
+#=> //your-subdomain.imgix.net/images/demo.png?w=200&s=2eadddacaa9bba4b88900d245f03f51e
+```
 
 ## Domain Sharded URLs
 

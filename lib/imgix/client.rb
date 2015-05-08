@@ -4,7 +4,7 @@ require 'zlib'
 
 module Imgix
   class Client
-    DEFAULTS = { secure: false, shard_strategy: :crc }
+    DEFAULTS = { secure: false, relative: false, shard_strategy: :crc }
 
     def initialize(options = {})
       options = DEFAULTS.merge(options)
@@ -12,6 +12,7 @@ module Imgix
       @hosts = Array(options[:host]) + Array(options[:hosts]) and validate_hosts!
       @token = options[:token]
       @secure = options[:secure]
+      @relative = !options[:secure] && options[:relative]
       @shard_strategy = options[:shard_strategy] and validate_strategy!
     end
 
@@ -20,14 +21,14 @@ module Imgix
     end
 
     def prefix(path)
-      "#{@secure ? 'https' : 'http'}://#{get_host(path)}"
+      "#{@secure ? 'https:' : @relative ? '' : 'http:'}//#{get_host(path)}"
     end
 
     def sign_path(path)
       uri = Addressable::URI.parse(path)
       query = (uri.query || '')
       signature = Digest::MD5.hexdigest(@token + uri.path + '?' + query)
-      "#{@secure ? 'https' : 'http'}://#{get_host(path)}#{uri.path}?#{query}&s=#{signature}"
+      "#{prefix(path)}#{uri.path}?#{query}&s=#{signature}"
     end
 
     def get_host(path)

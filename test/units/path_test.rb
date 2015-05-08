@@ -48,6 +48,20 @@ class PathTest < Imgix::Test
     assert_equal url, path.markalign('middle', 'center').to_url
   end
 
+  def test_relative_schema
+    client = Imgix::Client.new(host: 'demo.imgix.net', token: '10adc394', relative: true)
+    path = client.path('/images/demo.png')
+
+    assert_equal '//demo.imgix.net/images/demo.png?&s=3c1d676d4daf28c044dd83e8548f834a', path.to_url
+  end
+
+  def test_secure_trumps_relative_schema
+    client = Imgix::Client.new(host: 'demo.imgix.net', token: '10adc394', relative: true, secure: true)
+    path = client.path('/images/demo.png')
+
+    assert_equal 'https://demo.imgix.net/images/demo.png?&s=3c1d676d4daf28c044dd83e8548f834a', path.to_url
+  end
+
   def test_host_is_required
     assert_raises(ArgumentError) {Imgix::Client.new}
   end
